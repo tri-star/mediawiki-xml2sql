@@ -20,6 +20,12 @@ enum element {
   el_minor,
   el_comment,
   el_text,
+  el_ns,
+  el_parentid,
+  el_sha1,
+  el_model,
+  el_format,
+  el_redirect
 };
 %}
 struct eltmap { char *name; enum element t; };
@@ -44,3 +50,9 @@ ip,           el_ip
 minor,        el_minor
 comment,      el_comment
 text,         el_text
+ns,           el_ns
+parentid,     el_parentid
+sha1,         el_sha1
+model,        el_model
+format,       el_format
+redirect,     el_redirect

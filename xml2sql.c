@@ -205,6 +205,10 @@ struct revision {
 	int minor;
 	char *text;
 	char md5[MD5_DIGEST_STRING_LENGTH];
+	unsigned long parent_id;
+	char* sha1;
+	char* model;
+	char* format;
 };
 struct page page;
 struct revision revision;
@@ -741,6 +745,22 @@ void putrevision()
 	putcolumnf(&rev_tbl, "%d", revision.minor);
 	/* rev_deleted */
 	putcolumn(&rev_tbl, "0", 0);
+
+	/* rev_len */
+	putcolumn(&rev_tbl, "0", 0);
+
+	/* rev_parent_id */
+	putcolumnf(&rev_tbl, "%lu", revision.parent_id);
+
+	/* rev_sha1 */
+	putcolumnf(&rev_tbl, "%s", revision.sha1);
+
+	/* rev_content_model */
+	putcolumn(&rev_tbl, revision.model, 1);
+
+	/* rev_content_format */
+	putcolumn(&rev_tbl, revision.format, 1);
+
 	finrecord(&rev_tbl);
 	
 	if(page.lastts == 0 || strcmp(page.lastts, revision.timestamp) < 0) {
@@ -947,6 +967,9 @@ void XMLCALL xend(void *data, const char *el)
 		free(revision.ip);
 		free(revision.comment);
 		free(revision.text);
+		free(revision.sha1);
+		free(revision.model);
+		free(revision.format);
 		memset(&revision, 0, sizeof(revision));
 		
 		if(verbose && (rev_tbl.l & 0xFF) == 0) {
@@ -1022,6 +1045,22 @@ void XMLCALL xend(void *data, const char *el)
 			md5(revision.text, revision.md5);
 		}
 		break;
+	case el_ns:
+		if(!page.skip) page.ns = strtol(text, NULL, 0);
+		break;
+	case el_parentid:
+		if(!page.skip && tlen) revision.parent_id = strtoul(text, NULL, 0);
+		break;
+	case el_sha1:
+		if(!page.skip && tlen) revision.sha1 = strdup(text);
+		break;
+	case el_model:
+		if(!page.skip && tlen) revision.model = strdup(text);
+		break;
+	case el_format:
+		if(!page.skip && tlen) revision.format = strdup(text);
+		break;
+
 	}
 	
 	current = elstack[--elidx];
